@@ -1,0 +1,3 @@
+[submodule "kuard"]
+	path = kuard
+	url = https://github.com/kubernetes-up-and-running/kuard.git
