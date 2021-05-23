@@ -67,7 +67,7 @@ There are many others like microk8s and k3d, but the book only references these 
     ```bash
     kubectl proxy
     ```
-Some providers don’t install the Kubernetes dashboard by default.
+    Some providers don’t install the Kubernetes dashboard by default.
 
 ## Chapter 4. Common kubectl Commands
 
