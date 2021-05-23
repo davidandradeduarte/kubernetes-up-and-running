@@ -39,7 +39,163 @@ There are also tools to install and configure Kubernetes on your local machine u
 
 There are many others like microk8s and k3d, but the book only references these two.
 
+### Cluster Components
+
+- **Kubernetes Proxy** - responsible for routing network traffic to load-balanced services in the Kubernetes cluster. It's present on every node in the cluster. Usually runs as a DaemonSet object.
+    ```bash
+    kubectl get daemonSets --namespace=kube-system kube-proxy
+    ```
+
+- **Kubernetes DNS** - provides naming and discovery for the services that are defined in the cluster. Runs as a replicated service on the cluster. Depending on the size of the cluster, there may be one or more. Runs as a Deployment object.
+    ```bash
+    kubectl get deployments --namespace=kube-system core-dns
+    ```
+    There's also a Service object that provides load balancing for the DNS server.
+    ```bash
+    kubectl get services --namespace=kube-system core-dns
+    ```
+
+- **Kubernetes UI** - kubernetes GUI application. A web dashboard. Runs as a single replica and it's a Deployment object.
+    ```bash
+    kubectl get deployments --namespace=kube-system kubernetes-dashboard
+    ```
+    Also has a service that performs load balancing for the dashboard:
+    ```bash
+    kubectl get services --namespace=kube-system kubernetes-dashboard
+    ```
+    Access the kubernetes dashboard:
+    ```bash
+    kubectl proxy
+    ```
+Some providers don’t install the Kubernetes dashboard by default.
+
 ## Chapter 4. Common kubectl Commands
+
+The kubectl tool is a CLI to create objects and interact with the Kubernetes API.
+
+### Namespaces
+
+Organizes objects in the cluster.
+
+`default` namespace is selected by default.
+
+Select a different namespace with the `--namespace`, or short `-n` flag.
+
+### Contexts
+
+Can save configuration for default namespace, how to both find and authen‐ ticate to clusters, etc
+
+Context configurations is stored in `$HOME/.kube/config`
+
+Set default namespace to `mystuff` in context `my-context`:
+```bash
+kubectl config set-context my-context --namespace=mystuff
+```
+
+Use context `my-context`:
+```bash
+kubectl config use-context my-context
+```
+
+### Viewing Kubernetes API Objects
+
+Everything contained in Kubernetes is represented by a RESTful resource - Kubernetes objects.
+
+Each Kubernetes object exists at a unique HTTP path. E.g `https://your-k8s.com/api/v1/name‐spaces/default/pods/my-pod`
+
+Get a kubernetes object:
+```bash
+kubectl get <resource-name>
+kubectl get pod
+```
+
+The `-o` flag  manipulates output format. E.g `-o wide` gives more information. `-oyaml` outputs the resource in yaml format.
+
+You can use JSONPath query language.  
+*E.g Extracts the ip of the specified pod*:
+```bash
+kubectl get pods my-pod -o jsonpath --template={.status.podIP}
+```
+
+More detailed information about a particular object:
+```bash
+kubectl describe <resource-name> <obj-name>
+```
+
+### Creating, Updating, and Destroying Kubernetes Objects
+
+Create a kubernetes object (type is infered by the manifest):
+```bash
+kubectl apply -f obj.yaml
+```
+
+Use `--dry-run` flag to see what the apply command will do without actually making the changes.
+
+Edit a kubernetes object:
+```bash
+kubectl edit <resource-name> <obj-name>
+```
+
+Delete a kubernetes object:
+```bash
+kubectl delete -f obj.yaml
+```
+
+### Labeling and Annotating Objects
+
+Label a kubernetes object:
+```bash
+kubectl label pods bar color=red
+```
+
+Remove label from kubernets object:
+```bash
+kubectl label pods bar color-
+```
+
+### Debugging Commands
+
+Logs of a running container:
+```bash
+kubectl logs <pod-name>
+```
+Use the `-c` flag to set the container (in case you have multiple containers inside a Pod)  
+Use the `-f` (follow) flag to keep logs open (e.g tail -f)
+
+Execute a command in a running container:
+```bash
+kubectl exec -it <pod-name> -- bash
+```
+
+Copy a file from a running container to local machine:
+```bash
+kubectl cp <pod-name>:</path/to/remote/file> </path/to/local/file>
+```
+
+Forward network traffic from the local machine to the Pod:
+```bash
+kubectl port-forward <pod-name> 8080:80
+```
+
+Nodes/Pods resource usage:
+```
+kubectl top nodes
+kubectl top pods
+```
+
+### Command Autocompletion
+
+https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/#enable-shell-autocompletion
+
+### Alternative Ways of Viewing Your Cluster
+
+- [Visual Studio Code Kubernetes extension](https://marketplace.visualstudio.com/items?itemName=ms-kubernetes-tools.vscode-kubernetes-tools)
+- [Jetbrains extension for their IDEs](https://plugins.jetbrains.com/plugin/10485-kubernetes)
+- [Mobile open source app](https://github.com/bitnami-labs/cabin)
+
+Although not mentioned in the book:
+- [Lens](https://k8slens.dev/)
+- [k9s](https://github.com/derailed/k9s)
 
 ## Chapter 5. Pods
 
