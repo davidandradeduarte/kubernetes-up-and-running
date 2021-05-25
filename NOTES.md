@@ -199,3 +199,31 @@ Although not mentioned in the book:
 
 ## Chapter 5. Pods
 
+A Pod represents a collection of application containers and volumes running in the same execution environment.
+
+`Pod` is the smallest deployable artifact in a Kubernetes cluster.
+
+Applications running in the same Pod share the same IP address and port space, have the same hostname 
+
+*The name goes with the whale theme of Docker containers, since a Pod is also a group of whales*
+
+Usually the Pod runs a main application container and we put *sidecar* containers within it that extend and enhances the functionality of the main container. For example, several Service Mesh implementations use sidecars to inject network management into an application’s Pod.
+
+Create a pod:
+```bash
+k apply -f kuard-pod.yaml
+```
+
+Get a pod:
+```bash
+k get kuard
+```
+
+Possible Pod statuses: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
+
+## Side Notes
+
+`etcd` stores the object manifests
+
+Good description about how the Kubernetes API and scheduler manage and deploy Pods:
+*The Kubernetes API server accepts and processes Pod manifests before storing them in persistent storage (etcd). The scheduler also uses the Kubernetes API to find Pods that haven’t been scheduled to a node. The scheduler then places the Pods onto nodes depending on the resources and other constraints expressed in the Pod manifests. Multiple Pods can be placed on the same machine as long as there are sufficient resources. However, scheduling multiple replicas of the same application onto the same machine is worse for reliability, since the machine is a single failure domain. Consequently, the Kubernetes scheduler tries to ensure that Pods from the same application are distributed onto different machines for reliability in the presence of such failures. Once scheduled to a node, Pods don’t move and must be explicitly destroyed and rescheduled.*
