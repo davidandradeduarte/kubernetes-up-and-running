@@ -209,17 +209,107 @@ Applications running in the same Pod share the same IP address and port space, h
 
 Usually the Pod runs a main application container and we put *sidecar* containers within it that extend and enhances the functionality of the main container. For example, several Service Mesh implementations use sidecars to inject network management into an application’s Pod.
 
+Example of a Pod manifest:  
+[playground/manifests/kuard-pod.yaml](playground/manifests/kuard-pod.yaml)
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kuard
+spec:
+  containers:
+    - image: gcr.io/kuar-demo/kuard-amd64:blue
+      name: kuard
+      ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+
+```
+
 Create a pod:
 ```bash
-k apply -f kuard-pod.yaml
+kubectl apply -f manifests/kuard-pod.yaml
 ```
 
 Get a pod:
 ```bash
-k get kuard
+kubectl get pods kuard
 ```
 
 Possible Pod statuses: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
+
+Additional Pod information:
+*(this will show event streams - not attached to the Pod object)*
+```bash
+kubectl describe pods kuard
+```
+
+Delete a pod:
+```bash
+kubectl delete pods/kuard
+# using the same file that was used to create it:
+kubectl delete -f kuard-pod.yaml
+```
+
+When a Pod is deleted it will enter the `Terminating` state for a termination grace period.
+
+Port Forwarding a Pod:
+```bash
+kubectl port-forward kuard 8080:8080
+```
+
+View Pod logs:
+```bash
+kubectl logs kuard
+kubectl logs -f kuard # continuously stream logs
+kubectl logs -p kuard # see logs from previous instance
+```
+
+Execute commands or "bash into" a Pod:
+```bash
+kubectl exec -it kuard -- bash
+# we can pass any command besides bash e.g:
+kubectl exec kuard -- date
+```
+
+Copying files into a container is an anti-pattern. Treat the contents of a container as immutable.
+
+### Healt checks
+
+#### Liveness Probe
+
+Liveness health checks are application-specific, defined in the Pod manifest.
+
+Liveness probes are defined per container, which means each container inside a Pod is health-checked separately.
+
+[kuard-pod-health.yaml](playground/manifests/kuard-pod-health.yaml)
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kuard
+spec:
+  containers:
+    - image: gcr.io/kuar-demo/kuard-amd64:blue
+      name: kuard
+      livenessProbe: # liveness health check
+        httpGet:
+          path: /healthy
+          port: 8080
+        initialDelaySeconds: 5 # after 5 seconds from startup the endpoint will be called
+        timeoutSeconds: 1 # should respond in within 1 second 
+        periodSeconds: 10 # call this endpoint every 10 seconds
+        failureThreshold: 3 # if it fails more than 3 consecutive times, it will fail
+      ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+```
+
+#### Readiness Probe
+
+#### Types of Health Checks
 
 ## Side Notes
 
