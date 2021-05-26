@@ -279,6 +279,10 @@ Copying files into a container is an anti-pattern. Treat the contents of a conta
 
 #### Liveness Probe
 
+Liveness determines if an application is running properly.
+
+Containers that fail liveness checks are restarted, by default.
+
 Liveness health checks are application-specific, defined in the Pod manifest.
 
 Liveness probes are defined per container, which means each container inside a Pod is health-checked separately.
@@ -300,7 +304,7 @@ spec:
         initialDelaySeconds: 5 # after 5 seconds from startup the endpoint will be called
         timeoutSeconds: 1 # should respond in within 1 second 
         periodSeconds: 10 # call this endpoint every 10 seconds
-        failureThreshold: 3 # if it fails more than 3 consecutive times, it will fail
+        failureThreshold: 3 # if it fails 3 consecutive times, it will restart
       ports:
         - containerPort: 8080
           name: http
@@ -309,7 +313,17 @@ spec:
 
 #### Readiness Probe
 
+Readiness describes when a container is ready to serve user requests.
+
+Containers that fail readiness checks are removed from service load balancers.
+
+Readiness probes are config‐ ured similarly to liveness probes.
+
 #### Types of Health Checks
+
+There's also the possibility of configuring non-HTTP health checks like TCP socket connections (`tcpSocket`).
+
+`exec` probes execute a script or program in the context of the container. If exit code is 0 succeeds, otherwise fails.
 
 ## Side Notes
 
