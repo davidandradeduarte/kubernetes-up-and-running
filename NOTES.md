@@ -331,3 +331,10 @@ There's also the possibility of configuring non-HTTP health checks like TCP sock
 
 Good description about how the Kubernetes API and scheduler manage and deploy Pods:  
 *The Kubernetes API server accepts and processes Pod manifests before storing them in persistent storage (etcd). The scheduler also uses the Kubernetes API to find Pods that haven’t been scheduled to a node. The scheduler then places the Pods onto nodes depending on the resources and other constraints expressed in the Pod manifests. Multiple Pods can be placed on the same machine as long as there are sufficient resources. However, scheduling multiple replicas of the same application onto the same machine is worse for reliability, since the machine is a single failure domain. Consequently, the Kubernetes scheduler tries to ensure that Pods from the same application are distributed onto different machines for reliability in the presence of such failures. Once scheduled to a node, Pods don’t move and must be explicitly destroyed and rescheduled.*
+
+**SLA** - service level agreement - the agreement you make with clients or users  
+**SLO** - service level objectives - the objectives your team(s) must hit to meet that agreement  
+**SLI** - service level indicator - the real numbers of your indicators  
+
+
+https://www.atlassian.com/incident-management/kpis/sla-vs-slo-vs-sli
